@@ -3,7 +3,7 @@ from decimal import Decimal
 
 def main(page: ft.Page):
     number_type=["0","1","2","3","4","5","6","7","8","9","."]
-    symbol_type=["+", "-", "*", "/", "^"]
+    symbol_type=["+", "-", "*", "÷", "^"]
     number1=[]  #list
     number2=[]  #list
     symbol=""
@@ -51,7 +51,7 @@ def main(page: ft.Page):
                 result.value = str(f"={convert(number1) - convert(number2)}")
             elif symbol == "*":
                 result.value = str(f"={convert(number1) * convert(number2)}")
-            elif symbol == "/":
+            elif symbol == "÷":
                 if str(convert(number2))=="0":
                     result.value="Error"
                 else:
@@ -130,7 +130,7 @@ def main(page: ft.Page):
             controls=[
             ft.Button(content="-", on_click=clicked),
             ft.Button(content="*", on_click=clicked),
-            ft.Button(content="/", on_click=clicked),
+            ft.Button(content="÷", on_click=clicked),
             ft.Button(content="^", on_click=clicked),
         ]
             ),
