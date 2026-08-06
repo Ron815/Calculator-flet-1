@@ -53,11 +53,11 @@ def main(page: ft.Page):
                             current_number=[]
                             current_calculation.append(enter)
 
-                        elif enter =="." and "." not in current_number :
+                        elif (enter =="." and "." not in current_number)  :
                             current_number.append(enter)
                             current_calculation.append(enter)
 
-                    if current_calculation[-1]==")":
+                    if current_calculation[-1]==")" and enter !=".":
                         current_calculation.append(enter)
                         calculation_back.append(enter)
 
@@ -133,48 +133,49 @@ def main(page: ft.Page):
                 result.value = "Error"
 
 #action
+        if current_calculation!=[] and any(x in current_calculation for x in number_type):
+            if current_number!=[]:
+                calculation_back.append(str(Decimal("".join(current_number))))
+                current_number.clear()
 
-        if current_number!=[]:
-            calculation_back.append("".join(current_number))
-            current_number.clear()
+            while calculation_back[-1] in symbol_type or calculation_back[-1] in brackets_type:
+                calculation_back.pop()
+                current_calculation.pop()
 
-        elif calculation_back[-1] in symbol_type:
-            calculation_back.pop()
+            while calculation_back.count("(") > calculation_back.count(")"):
+                    calculation_back.append(")")
+                    current_calculation.append(")")
 
-        while calculation_back.count("(") > calculation_back.count(")"):
+            while ("".join(calculation_back)).find("(") > ("".join(calculation_back).find(")")) :
+                calculation_back.insert(0,"(")
+                current_calculation.insert(0,"(")
+                
+            while calculation_back.count("(") < calculation_back.count(")"):
+                calculation_back.insert(0,"(")
+                current_calculation.insert(0,"(")
+
+            while calculation_back.count("(") > calculation_back.count(")"):
                 calculation_back.append(")")
                 current_calculation.append(")")
 
-        while ("".join(calculation_back)).find("(") > ("".join(calculation_back).find(")")) :
-            calculation_back.insert(0,"(")
-            current_calculation.insert(0,"(")
+            calculation_back2 = calculation_back.copy()
+
+            while "(" in calculation_back and calc_state==True :
+                for index, value in enumerate(calculation_back):
+                    if value == "(":
+                        start_index=index
+                    elif value == ")":
+                        end_index=index
+                        break
+
+                in_bracket = calculation_back[start_index+1 : end_index]
+                calc_main(in_bracket, start_index, end_index)
+
             
-        while calculation_back.count("(") < calculation_back.count(")"):
-            calculation_back.insert(0,"(")
-            current_calculation.insert(0,"(")
+            calc_main(calculation_back)
 
-        while calculation_back.count("(") > calculation_back.count(")"):
-            calculation_back.append(")")
-            current_calculation.append(")")
-
-        calculation_back2 = calculation_back.copy()
-
-        while "(" in calculation_back and calc_state==True :
-            for index, value in enumerate(calculation_back):
-                if value == "(":
-                    start_index=index
-                elif value == ")":
-                    end_index=index
-                    break
-
-            in_bracket = calculation_back[start_index+1 : end_index]
-            calc_main(in_bracket, start_index, end_index)
-
-        
-        calc_main(calculation_back)
-
-        calculation_show.value = "".join(current_calculation)
-        page.update()
+            calculation_show.value = "".join(current_calculation)
+            page.update()
 
 
 
