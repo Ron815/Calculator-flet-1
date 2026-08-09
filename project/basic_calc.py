@@ -50,7 +50,7 @@ def main(page: ft.Page):
 
                     change_list("append", enter)
                     current_number.clear()
-                    calculation_back2.clear
+                    calculation_back2.clear()
                     result.value=""
 
                     calculation_show.value = "".join(current_calculation)
@@ -61,8 +61,12 @@ def main(page: ft.Page):
                 current_calculation.append(enter)
 
             elif enter == "(" :
-                if current_calculation==[] or current_calculation[-1]=="(" or current_calculation[-1] in symbol_type:
-                    change_list("append", enter)
+                if (current_calculation==[] or current_calculation[-1]=="(" or current_calculation[-1] in symbol_type) :
+                    if current_calculation != []: 
+                        if current_calculation[-1] != ".":
+                            change_list("append", enter)
+                    else:
+                        change_list("append", enter)
 
             elif enter in symbol_type :
                 if current_calculation != [] :
@@ -165,7 +169,8 @@ def main(page: ft.Page):
                 change_list("append", ")")
 
             while calculation_back.count("(") < calculation_back.count(")"):
-                change_list("append", "(")
+                calculation_back.insert(0,"(")
+                current_calculation.insert(0,"(")
 
             for index, value in enumerate(calculation_back):
                 if value == "(":
