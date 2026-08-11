@@ -1,5 +1,3 @@
-import decimal
-
 import flet as ft
 from decimal import Decimal
 
@@ -100,14 +98,9 @@ def main(page: ft.Page):
         calculation_show.value = "".join(current_calculation)
         page.update()
 
-
+#bug
     def clicked_calc():
-        nonlocal calculation_back2
-        def sort(index,ans,calculation):
-            calculation.pop(index)
-            calculation.pop(index)
-            calculation[index-1]=str(ans)
-
+        nonlocal calculation_back2                        
     #main
         def calc_main(calculation, start_index="", end_index=""):
             nonlocal calculation_back, calc_state
@@ -115,24 +108,18 @@ def main(page: ft.Page):
             if calc_state==True :
                 while "^" in calculation:
                     for index, value in enumerate(calculation):
-                        if value == "^":
-                            try:
-                                ans = Decimal(calculation[index-1]) ** Decimal(calculation[index+1])
-                                sort(index,ans, calculation)
-                            except :
-                                result.value="Error"
-                                calc_state=False
-                                return "Error"
+                        if value == "^" and "^" not in calculation[index+1:] :
+                            calculation[index-1:index+2] = [str(Decimal(calculation[index-1])**Decimal(calculation[index+1]))]
 
                 while "*" in calculation or "/" in calculation : 
                     for index,value in enumerate(calculation):
                             if value == "*":
-                                ans = Decimal(calculation[index-1]) * Decimal(calculation[index+1])
-                                sort(index,ans,calculation)
+                                calculation[index-1:index+2] = [str(Decimal(calculation[index-1]) * Decimal(calculation[index+1]))]
+                                
                             elif value == "/":
                                 try:
-                                    ans = Decimal(calculation[index-1]) / Decimal(calculation[index+1])
-                                    sort(index,ans,calculation)
+                                    calculation[index-1:index+2] = [str(Decimal(calculation[index-1]) / Decimal(calculation[index+1]))]
+                                    
                                 except :
                                     result.value="Error"
                                     calc_state=False
@@ -141,11 +128,11 @@ def main(page: ft.Page):
                 while "+" in calculation or "-" in calculation : 
                     for index,value in enumerate(calculation):             
                         if value == "+":
-                            ans = Decimal(calculation[index-1]) + Decimal(calculation[index+1])
-                            sort(index,ans,calculation)
+                            calculation[index-1:index+2] = [str(Decimal(calculation[index-1]) + Decimal(calculation[index+1]))]
+                            
                         elif value == "-":
-                            ans = Decimal(calculation[index-1]) - Decimal(calculation[index+1])
-                            sort(index,ans,calculation)
+                            calculation[index-1:index+2] = [str(Decimal(calculation[index-1]) - Decimal(calculation[index+1]))]
+                            
 
                 if start_index != "" :
                     del calculation_back[start_index+1 : end_index+1]
