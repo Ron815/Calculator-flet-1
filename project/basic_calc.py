@@ -10,62 +10,68 @@ def main(page: ft.Page):
     current_number=[]  #list
     current_calculation=[]  #list
     calculation_back=[]
-    calculation_back2=[]
+    calculation_back_copy=[]
     calculation_show=ft.Text(value="", size=15)  
     result=ft.Text(value="", size=20)
     calc_state=True
 
-    def change_list(action_type , value=""):
+    def change_list(action_type, list1, list2=[""], value=""):
         if action_type =="append":
-            calculation_back.append(value)
-            current_calculation.append(value)
+            list1.append(value)
+            list2.append(value)
         elif action_type =="pop":
-            calculation_back.pop()
-            current_calculation.pop()
+            list1.pop()
+            list2.pop()
         elif action_type == "clear":
-            calculation_back.clear()
-            current_calculation.clear()
+            list1.clear()
+            list2.clear()
         else:
             return
 
     def clicked_show(e):
         enter=e.control.content
-        nonlocal current_number, current_calculation, calculation_back, calculation_show
+        nonlocal current_number, current_calculation, calculation_back, calculation_show, calculation_back_copy, number_type
         if calc_state==True:
             if result.value !="" and result.value != "Error":    
-                if enter in symbol_type:
-                    change_list("clear")
-                    if Decimal(result.value) < Decimal("0"):
-                        change_list("append", "(")
-                        change_list( "append","0")
-                        for value in list(str(float(result.value))):
-                            change_list("append", str(value))
-                        change_list("append",")")
 
+                if enter in symbol_type:
+                    change_list("clear", current_calculation, calculation_back)
+
+                    if Decimal(result.value) < Decimal("0"):
+                        change_list("append", current_calculation, calculation_back, "(")
+                        for value in list(str(float(result.value))):
+                            change_list("append", current_calculation, current_number, str(value))
+                        calculation_back.append("".join(current_number))
+                        current_number.clear()
 
                     else:
                         change_list("append", str(Decimal(result.value)))
 
-                    change_list("append", enter)
+                    change_list("append",current_calculation, calculation_back, enter)
                     current_number.clear()
-                    calculation_back2.clear()
+                    calculation_back_copy.clear()
                     result.value=""
 
                     calculation_show.value = "".join(current_calculation)
                     page.update()
-            
-            if (enter in number_type and current_calculation==[]) or (enter in number_type and  current_calculation[-1]!=")"):
-                current_number.append(enter)
-                current_calculation.append(enter)
 
+                elif enter in number_type:
+                    change_list("clear", current_calculation, calculation_back)
+                    change_list("append", current_calculation, current_number)            
+        #number
+            if (enter in number_type and current_calculation==[]) or (enter in number_type and  current_calculation[-1] != ")"):
+                change_list("append", current_calculation, current_number, enter)
+
+        #left bracket
             elif enter == "(" :
-                if (current_calculation==[] or current_calculation[-1]=="(" or current_calculation[-1] in symbol_type) :
+                if (current_calculation==[] or current_calculation[-1] == "(" )  or  (current_calculation[-1] in symbol_type) :
                     if current_calculation != []: 
                         if current_calculation[-1] != ".":
-                            change_list("append", enter)
+                            change_list("append",current_calculation, enter)
                     else:
-                        change_list("append", enter)
+                        change_list("append", current_calculation, calculation_back, enter)
 
+        #symbol
             elif enter in symbol_type :
                 if current_calculation != [] :
 
@@ -73,34 +79,49 @@ def main(page: ft.Page):
 
                         if enter != ".":
                             calculation_back.append("".join(current_number))
-                            change_list("append", enter)
+                            if "-" in current_number:
+                                change_list("append", current_calculation, calculation_back, ")")
+
+                            change_list("append",current_calculation, calculation_back, enter)
                             current_number=[]
-
+                            
                         elif (enter =="." and "." not in current_number)  :
-                            current_number.append(enter)
-                            current_calculation.append(enter)
+                            change_list("append", current_calculation, current_number, enter)
 
-                    if current_calculation[-1]==")" and enter !=".":
-                        change_list("append", enter)
+                    elif current_calculation[-1]==")" and enter !=".":
+                        change_list("append",current_calculation,calculation_back, enter)
+
+                    elif ((current_calculation[-1] in symbol_type) or (current_calculation[-1] == "(" )) and (enter == "-") and (current_calculation[-1] != ".") :
+                        if current_calculation[-1] in symbol_type:
+                            change_list("append", current_calculation, calculation_back, "(")
+                            change_list("append", current_calculation, current_number, enter)
+                        elif current_calculation[-1] == "(":
+                            change_list("append", current_calculation, current_number, enter)
+
+                elif enter == "-":
+                    change_list("append", current_calculation, calculation_back, "(")
+                    change_list("append", current_calculation, current_number, enter)
 
 
+        #right bracket 
             elif  (enter == ")") and (current_calculation!=[]) :
                 if  (current_calculation[-1] != "(") and (current_calculation[-1] not in symbol_type):
                     if current_calculation[-1] in number_type:
                         calculation_back.append("".join(current_number))
                         current_number=[]
-                        change_list("append", enter)
+                        change_list("append", current_calculation, calculation_back, enter)
 
                     elif current_calculation [-1] == ")":        
-                        change_list("append", enter)
+                        change_list("append", current_calculation, calculation_back ,enter)
 
 
         calculation_show.value = "".join(current_calculation)
         page.update()
 
-#bug
+
     def clicked_calc():
-        nonlocal calculation_back2                        
+        nonlocal calculation_back_copy                        
+
     #main
         def calc_main(calculation, start_index="", end_index=""):
             nonlocal calculation_back, calc_state
@@ -149,11 +170,11 @@ def main(page: ft.Page):
                 calculation_back.append(str(Decimal("".join(current_number))))
                 current_number.clear()
 
-            while calculation_back[-1] in symbol_type or calculation_back[-1] in brackets_type:
-                change_list("pop")
+            while (calculation_back[-1])[-1] in symbol_type or calculation_back[-1] in brackets_type:
+                change_list("pop", current_calculation, calculation_back)
 
             while calculation_back.count("(") > calculation_back.count(")"):
-                change_list("append", ")")
+                change_list("append", current_calculation, calculation_back, ")")
 
             while calculation_back.count("(") < calculation_back.count(")"):
                 calculation_back.insert(0,"(")
@@ -169,9 +190,9 @@ def main(page: ft.Page):
                 current_calculation.insert(0,"(")
 
             while calculation_back.count("(") > calculation_back.count(")"):
-                change_list("append", ")")
+                change_list("append", current_calculation, calculation_back, ")")
 
-            calculation_back2 = calculation_back.copy()
+            calculation_back_copy = calculation_back.copy()
 
             while "(" in calculation_back and calc_state==True :
                 for index, value in enumerate(calculation_back):
@@ -193,11 +214,11 @@ def main(page: ft.Page):
 
 
     def clear(): 
-        nonlocal current_number, current_calculation, calculation_back, result, calculation_show, calc_state, calculation_back2
+        nonlocal current_number, current_calculation, calculation_back, result, calculation_show, calc_state, calculation_back_copy
         current_number.clear()
         current_calculation.clear()
         calculation_back.clear()
-        calculation_back2.clear()
+        calculation_back_copy.clear()
         result.value=""
         calc_state=True
 
@@ -205,9 +226,9 @@ def main(page: ft.Page):
         page.update()
     
     def back(): 
-        nonlocal current_number, current_calculation, calculation_back, result, calculation_show, calc_state, brackets_type, calculation_back2
+        nonlocal current_number, current_calculation, calculation_back, result, calculation_show, calc_state, brackets_type, calculation_back_copy
         if result.value!="":
-            calculation_back = calculation_back2.copy()
+            calculation_back = calculation_back_copy.copy()
         result.value=""
         calc_state=True
         if current_calculation != []:
