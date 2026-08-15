@@ -64,10 +64,10 @@ def main(page: ft.Page):
 
         #left bracket
             elif enter == "(" :
-                if (current_calculation==[] or current_calculation[-1] == "(" )  or  (current_calculation[-1] in symbol_type) :
+                if current_calculation==[] or current_calculation[-1] == "("   or  (current_calculation[-1] in symbol_type) :
                     if current_calculation != []: 
                         if current_calculation[-1] != ".":
-                            change_list("append",current_calculation, enter)
+                            change_list("append",current_calculation, calculation_back, enter)
                     else:
                         change_list("append", current_calculation, calculation_back, enter)
 
