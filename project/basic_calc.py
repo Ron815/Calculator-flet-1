@@ -45,7 +45,7 @@ def main(page: ft.Page):
                         current_number.clear()
 
                     else:
-                        change_list("append", str(Decimal(result.value)))
+                        change_list("append", current_calculation, calculation_back ,str(Decimal(result.value)))
 
                     change_list("append",current_calculation, calculation_back, enter)
                     current_number.clear()
@@ -57,7 +57,7 @@ def main(page: ft.Page):
 
                 elif enter in number_type:
                     change_list("clear", current_calculation, calculation_back)
-                    change_list("append", current_calculation, current_number)            
+                    change_list("append", current_calculation, current_number, enter)            
         #number
             if (enter in number_type and current_calculation==[]) or (enter in number_type and  current_calculation[-1] != ")"):
                 change_list("append", current_calculation, current_number, enter)
@@ -183,7 +183,7 @@ def main(page: ft.Page):
             for index, value in enumerate(calculation_back):
                 if value == "(":
                     while ")" not in calculation_back[index:]:
-                        change_list("append",")")
+                        change_list("append",current_calculation, calculation_back,")")
                 
             while calculation_back.count("(") < calculation_back.count(")"):
                 calculation_back.insert(0,"(")
